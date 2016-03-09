@@ -18,7 +18,7 @@ setup(
     include_package_data=True,
     install_requires=['dnspython3'],
     license='BSD (3-Clause) License',
-    description='A Django app that checks if IPs are accessible and if are blacklisted.',
+    description='A Django app that checks if IPs are accessible and/or if are blacklisted.',
     long_description=README,
     url='https://gitlab.com/valentin87/django-blacklist-check',
     author='Valentin Olaru',
