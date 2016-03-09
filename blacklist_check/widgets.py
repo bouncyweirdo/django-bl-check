@@ -1,16 +1,19 @@
+from django import get_version, forms
 from django.forms import Widget
-from django.forms.utils import flatatt
-from django.utils.encoding import force_text
-from django.utils.safestring import mark_safe
 from django import utils
 import copy
+from distutils.version import StrictVersion
 try:
     import simplejson as json
 except ImportError:
     import json
+if StrictVersion(get_version()) < StrictVersion('1.9.0'):
+    from django.forms.util import flatatt
+else:
+    from django.forms.utils import flatatt
 
 
-class SplitJSONWidget(Widget):
+class SplitJSONWidget(forms.Widget):
 
     def __init__(self, attrs=None, newline='<br/>\n', sep='__', debug=False):
         self.newline = newline
@@ -21,7 +24,7 @@ class SplitJSONWidget(Widget):
     def _as_text_field(self, name, key, value, is_sub=False):
         attrs = self.build_attrs(self.attrs, type='text',
                                  name="%s%s%s" % (name, self.separator, key))
-        attrs['value'] = force_text(value)
+        attrs['value'] = utils.encoding.force_unicode(value)
         attrs['id'] = attrs.get('name', None)
         return u""" <label for="%s">%s:</label>
         <input%s />""" % (attrs['id'], key, flatatt(attrs))
@@ -32,15 +35,18 @@ class SplitJSONWidget(Widget):
             title = name.rpartition(self.separator)[2]
             _l = ['%s:%s' % (title, self.newline)]
             for key, value in enumerate(json_obj):
-                _l.append(self._to_build("%s%s%s" % (name, self.separator, key), value))
+                _l.append(self._to_build("%s%s%s" % (name,
+                                         self.separator, key), value))
             inputs.extend([_l])
         elif isinstance(json_obj, dict):
             title = name.rpartition(self.separator)[2]
             _l = ['%s:%s' % (title, self.newline)]
             for key, value in json_obj.items():
-                _l.append(self._to_build("%s%s%s" % (name, self.separator, key), value))
+                _l.append(self._to_build("%s%s%s" % (name,
+                                                     self.separator, key),
+                                         value))
             inputs.extend([_l])
-        elif isinstance(json_obj, (str, int)):
+        elif isinstance(json_obj, (basestring, int, float)):
             name, _, key = name.rpartition(self.separator)
             inputs.append(self._as_text_field(name, key, json_obj))
         elif json_obj is None:
@@ -52,7 +58,7 @@ class SplitJSONWidget(Widget):
         if l:
             result = ''
             for el in l:
-                if isinstance(el, list) and len(l) is 1:
+                if isinstance(el, list) and len(l) == 1:
                     result += '%s' % self._prepare_as_ul(el)
                 elif isinstance(el, list):
                     result += '<ul>'
@@ -69,7 +75,7 @@ class SplitJSONWidget(Widget):
         result = []
 
         def _to_parse_key(k, v):
-            if k.find(self.separator) is not -1:
+            if k.find(self.separator) != -1:
                 apx, _, nk = k.rpartition(self.separator)
                 try:
                     # parse list
@@ -125,7 +131,7 @@ class SplitJSONWidget(Widget):
             if k in copy_raw_data:
                 # to transform value from list to string
                 v = v[0] if isinstance(v, list) and len(v) is 1 else v
-                if k.find(self.separator) is not -1:
+                if k.find(self.separator) != -1:
                     d = _to_parse_key(k, v)
                     # set type result
                     if not len(result):
@@ -144,7 +150,7 @@ class SplitJSONWidget(Widget):
     def render(self, name, value, attrs=None):
         try:
             value = json.loads(value)
-        except TypeError:
+        except (TypeError, KeyError):
             pass
         inputs = self._to_build(name, value or {})
         result = self._prepare_as_ul(inputs)
@@ -152,4 +158,5 @@ class SplitJSONWidget(Widget):
             # render json as well
             source_data = u'<hr/>Source data: <br/>%s<hr/>' % str(value)
             result = '%s%s' % (result, source_data)
-        return mark_safe(result)
+            print result
+        return utils.safestring.mark_safe(result)
