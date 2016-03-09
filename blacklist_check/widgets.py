@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import Widget
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
 from django import utils
 import copy
@@ -21,7 +21,7 @@ class SplitJSONWidget(forms.Widget):
     def _as_text_field(self, name, key, value, is_sub=False):
         attrs = self.build_attrs(self.attrs, type='text',
                                  name="%s%s%s" % (name, self.separator, key))
-        attrs['value'] = force_unicode(value)
+        attrs['value'] = force_text(value)
         attrs['id'] = attrs.get('name', None)
         return u""" <label for="%s">%s:</label>
         <input%s />""" % (attrs['id'], key, forms.util.flatatt(attrs))
