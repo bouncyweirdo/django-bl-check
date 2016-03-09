@@ -1,9 +1,11 @@
 from django.contrib import admin
 from django.contrib import messages
+from django.contrib.postgres.fields import JSONField
 from django import forms
 
 from .models import *
 from .utils import check_ip_status, check_bl
+from .widgets import SplitJSONWidget
 
 
 def update_ip_status(modeladmin, request, queryset):
@@ -38,6 +40,9 @@ class IpAddressAdmin(admin.ModelAdmin):
     search_fields = ["address", "hostname", "rdns"]
     list_filter = ("status", "enabled", "blacklisted")
     actions = [update_ip_status, update_ip_blacklist]
+    formfield_overrides = {
+        JSONField: {'widget': SplitJSONWidget},
+    }
 
     def get_queryset(self, request):
         """Limit Pages to those that belong to the request's user."""
