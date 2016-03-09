@@ -1,14 +1,23 @@
 from django.contrib import admin
+from django.contrib import messages
 from django import forms
 
 from .models import *
-from .utils import check_ip_status
+from .utils import check_ip_status, check_bl
 
 
-def update_ip(modeladmin, request, queryset):
-    for a in queryset:
-        check_ip_status(a)
-update_ip.short_description = "Update ip status and blacklist"
+def update_ip_status(modeladmin, request, queryset):
+    for ip in queryset:
+        check_ip_status(ip)
+    messages.info(request, 'Selected IPs were updated.')
+update_ip_status.short_description = "Update ip status"
+
+
+def update_ip_blacklist(modeladmin, request, queryset):
+    for ip in queryset:
+        check_bl(ip)
+    messages.info(request, 'Selected IPs were updated.')
+update_ip_blacklist.short_description = "Update ip blacklist"
 
 
 class IpAddressAdminForm(forms.ModelForm):
@@ -28,7 +37,7 @@ class IpAddressAdmin(admin.ModelAdmin):
     list_display = ("address", "hostname", "rdns", "status", "enabled", "blacklisted")
     search_fields = ["address", "hostname", "rdns"]
     list_filter = ("status", "enabled", "blacklisted")
-    actions = [update_ip]
+    actions = [update_ip_status, update_ip_blacklist]
 
     def get_queryset(self, request):
         """Limit Pages to those that belong to the request's user."""
