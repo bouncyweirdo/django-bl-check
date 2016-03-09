@@ -36,9 +36,9 @@ class IpAddressAdminForm(forms.ModelForm):
 
 class IpAddressAdmin(admin.ModelAdmin):
     form = IpAddressAdminForm
-    list_display = ("address", "hostname", "rdns", "status", "enabled", "blacklisted")
+    list_display = ("address", "hostname", "rdns", "status", "enabled", "blacklisted", "critical_blacklisted")
     search_fields = ["address", "hostname", "rdns"]
-    list_filter = ("status", "enabled", "blacklisted")
+    list_filter = ("status", "enabled", "blacklisted", "critical_blacklisted")
     actions = [update_ip_status, update_ip_blacklist]
     formfield_overrides = {
         JSONField: {'widget': SplitJSONWidget},
