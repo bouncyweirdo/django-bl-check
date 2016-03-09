@@ -38,7 +38,7 @@ class SplitJSONWidget(forms.Widget):
             for key, value in json_obj.items():
                 _l.append(self._to_build("%s%s%s" % (name, self.separator, key), value))
             inputs.extend([_l])
-        elif isinstance(json_obj, (basestring, int)):
+        elif isinstance(json_obj, (str, int)):
             name, _, key = name.rpartition(self.separator)
             inputs.append(self._as_text_field(name, key, json_obj))
         elif json_obj is None:
