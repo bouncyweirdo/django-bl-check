@@ -1,6 +1,7 @@
 from django import get_version, forms
 from django.forms import Widget
 from django import utils
+from django.utils.encoding import force_text
 import copy
 from distutils.version import StrictVersion
 try:
@@ -24,7 +25,7 @@ class SplitJSONWidget(forms.Widget):
     def _as_text_field(self, name, key, value, is_sub=False):
         attrs = self.build_attrs(self.attrs, type='text',
                                  name="%s%s%s" % (name, self.separator, key))
-        attrs['value'] = utils.encoding.force_unicode(value)
+        attrs['value'] = force_text(value)
         attrs['id'] = attrs.get('name', None)
         return u""" <label for="%s">%s:</label>
         <input%s />""" % (attrs['id'], key, flatatt(attrs))
@@ -35,18 +36,15 @@ class SplitJSONWidget(forms.Widget):
             title = name.rpartition(self.separator)[2]
             _l = ['%s:%s' % (title, self.newline)]
             for key, value in enumerate(json_obj):
-                _l.append(self._to_build("%s%s%s" % (name,
-                                         self.separator, key), value))
+                _l.append(self._to_build("%s%s%s" % (name, self.separator, key), value))
             inputs.extend([_l])
         elif isinstance(json_obj, dict):
             title = name.rpartition(self.separator)[2]
             _l = ['%s:%s' % (title, self.newline)]
             for key, value in json_obj.items():
-                _l.append(self._to_build("%s%s%s" % (name,
-                                                     self.separator, key),
-                                         value))
+                _l.append(self._to_build("%s%s%s" % (name, self.separator, key), value))
             inputs.extend([_l])
-        elif isinstance(json_obj, (basestring, int, float)):
+        elif isinstance(json_obj, (str, int, float)):
             name, _, key = name.rpartition(self.separator)
             inputs.append(self._as_text_field(name, key, json_obj))
         elif json_obj is None:
@@ -158,5 +156,4 @@ class SplitJSONWidget(forms.Widget):
             # render json as well
             source_data = u'<hr/>Source data: <br/>%s<hr/>' % str(value)
             result = '%s%s' % (result, source_data)
-            print result
         return utils.safestring.mark_safe(result)
