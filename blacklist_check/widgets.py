@@ -10,7 +10,7 @@ except ImportError:
     import json
 
 
-class SplitJSONWidget(forms.Widget):
+class SplitJSONWidget(Widget):
 
     def __init__(self, attrs=None, newline='<br/>\n', sep='__', debug=False):
         self.newline = newline
