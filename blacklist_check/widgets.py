@@ -150,5 +150,4 @@ class SplitJSONWidget(forms.Widget):
             # render json as well
             source_data = u'<hr/>Source data: <br/>%s<hr/>' % str(value)
             result = '%s%s' % (result, source_data)
-            print result
         return utils.safestring.mark_safe(result)
