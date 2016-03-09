@@ -1,5 +1,5 @@
-from django import forms
 from django.forms import Widget
+from django.forms.utils import flatatt
 from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
 from django import utils
@@ -24,7 +24,7 @@ class SplitJSONWidget(forms.Widget):
         attrs['value'] = force_text(value)
         attrs['id'] = attrs.get('name', None)
         return u""" <label for="%s">%s:</label>
-        <input%s />""" % (attrs['id'], key, forms.util.flatatt(attrs))
+        <input%s />""" % (attrs['id'], key, flatatt(attrs))
 
     def _to_build(self, name, json_obj):
         inputs = []
