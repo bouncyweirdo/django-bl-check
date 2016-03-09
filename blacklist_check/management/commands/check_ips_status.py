@@ -1,13 +1,10 @@
 import datetime
-import shlex
-import subprocess
-import socket
 
 from django.utils import timezone
 from django.core.management.base import BaseCommand
 
-from blacklist_check.models import IpAddress, Types
-from blacklist_check.utils import check_ip_status
+from .models import IpAddress, Types
+from .utils import check_ip_status
 
 
 class Command(BaseCommand):

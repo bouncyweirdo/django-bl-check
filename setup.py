@@ -8,12 +8,12 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django-blacklist-check',
-    version='0.0.1',
+    version='0.0.2',
     packages=[
-        'django_blacklist_check',
-        'django_blacklist_check.management',
-        'django_blacklist_check.management.commands',
-        'django_blacklist_check.migrations',
+        'blacklist_check',
+        'blacklist_check.management',
+        'blacklist_check.management.commands',
+        'blacklist_check.migrations',
     ],
     include_package_data=True,
     install_requires=['dnspython3'],
