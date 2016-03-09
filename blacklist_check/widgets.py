@@ -28,7 +28,7 @@ class SplitJSONWidget(forms.Widget):
         attrs['value'] = force_text(value)
         attrs['id'] = attrs.get('name', None)
         return u""" <label for="%s">%s:</label>
-        <input%s style="width: 500px;"/>""" % (attrs['id'], key, flatatt(attrs))
+        <input%s style="width: 1000px;"/>""" % (attrs['id'], key, flatatt(attrs))
 
     def _to_build(self, name, json_obj):
         inputs = []
