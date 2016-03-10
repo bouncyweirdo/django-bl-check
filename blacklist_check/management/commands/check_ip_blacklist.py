@@ -10,4 +10,4 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         ips = IpAddress.objects.filter(enabled=True, status=Types.STATUS_ACTIVE)
         for ip in ips:
-            check_bl(ip)
+            check_bl.delay(ip)

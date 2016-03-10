@@ -1,3 +1,7 @@
+from __future__ import absolute_import
+
+from celery.task import task
+
 import shlex
 import subprocess
 import socket
@@ -6,7 +10,8 @@ from .models import Types, DnsBlacklist
 from django.utils import timezone
 from dns import resolver
 
-@app.task
+
+@task()
 def check_bl(ip):
     data = dict()
     blacklist_hosts = DnsBlacklist.objects.all()
@@ -33,6 +38,7 @@ def check_bl(ip):
     ip.save()
 
 
+@task()
 def check_ip_status(ip):
     cmd = shlex.split("ping -c1 {}".format(ip.address))
     try:
