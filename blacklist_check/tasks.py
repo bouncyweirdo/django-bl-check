@@ -4,7 +4,7 @@ import shlex
 import subprocess
 import socket
 
-from .celery import app
+from .celeryconfig import app
 from .models import Types, DnsBlacklist
 from django.utils import timezone
 from dns import resolver
