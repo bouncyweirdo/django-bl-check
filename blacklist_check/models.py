@@ -33,7 +33,7 @@ class IpAddress(models.Model):
     blacklisted = models.BooleanField(default=True, help_text="Unchecked if IP is blacklisted, Checked if IP is clean.")
     critical_blacklisted = models.BooleanField(default=True, help_text="Unchecked if IP is blacklisted in a critical blacklist, Checked if IP is clean.")
     enabled = models.BooleanField(default=True, help_text="If checked, checks will run for this IP.")
-    data = JSONField(default={"": ""}, help_text="Info about blacklists")
+    data = JSONField(default=None, blank=True, null=True, help_text="Info about blacklists")
     last_update = models.DateTimeField(default=None, blank=True, null=True, help_text="Last ip check")
     ssh_port = models.SmallIntegerField(default=22, help_text="Used to check IP accessibility if ping is down, default port 22")
 

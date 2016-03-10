@@ -78,7 +78,7 @@ class DnsBlacklistAdminForm(forms.ModelForm):
 
 class DnsBlacklistAdmin(admin.ModelAdmin):
     form = DnsBlacklistAdminForm
-    list_display = ['dns', ]
+    list_display = ['dns', 'critical']
 
 
 admin.site.register(IpAddress, IpAddressAdmin)
