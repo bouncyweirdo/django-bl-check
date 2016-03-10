@@ -20,4 +20,4 @@ class Command(BaseCommand):
 
         ips = IpAddress.objects.filter(enabled=True, last_update__lte=last_update)
         for ip in ips:
-            check_ip_status(ip)
+            check_ip_status.delay(ip)

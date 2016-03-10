@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 
 from blacklist_check.models import IpAddress, Types
-from blacklist_check.utils import check_bl
+from blacklist_check.tasks import check_bl
 
 
 class Command(BaseCommand):
