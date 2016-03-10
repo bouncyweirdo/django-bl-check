@@ -125,19 +125,20 @@ class SplitJSONWidget(forms.Widget):
             else:
                 return v
 
-        for k, v in raw_data.iteritems():
-            if k in copy_raw_data:
-                # to transform value from list to string
-                v = v[0] if isinstance(v, list) and len(v) is 1 else v
-                if k.find(self.separator) != -1:
-                    d = _to_parse_key(k, v)
-                    # set type result
-                    if not len(result):
-                        result = type(d)()
-                    try:
-                        result.extend(d)
-                    except:
-                        result.update(d)
+        if raw_data:
+            for k, v in raw_data.iteritems():
+                if k in copy_raw_data:
+                    # to transform value from list to string
+                    v = v[0] if isinstance(v, list) and len(v) is 1 else v
+                    if k.find(self.separator) != -1:
+                        d = _to_parse_key(k, v)
+                        # set type result
+                        if not len(result):
+                            result = type(d)()
+                        try:
+                            result.extend(d)
+                        except:
+                            result.update(d)
         return result
 
     def value_from_datadict(self, data, files, name):
