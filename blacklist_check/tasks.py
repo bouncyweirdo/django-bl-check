@@ -1,30 +1,32 @@
-import datetime
 import shlex
 import subprocess
 import socket
-import dns
 
 from .models import Types, DnsBlacklist
 from django.utils import timezone
+from dns import resolver
 
-
+@app.task
 def check_bl(ip):
     data = dict()
-    blacklist_hosts = DnsBlacklist.objects.all().values_list('dns', flat=True)
+    blacklist_hosts = DnsBlacklist.objects.all()
     blacklisted = True
     critical_blacklisted = True
+    print(ip.address)
     for bl in blacklist_hosts:
         try:
-            my_resolver = dns.resolver.Resolver()
-            query = '.'.join(reversed(str(ip.address).split("."))) + "." + bl
+            my_resolver = resolver.Resolver()
+            query = '.'.join(reversed(str(ip.address).split("."))) + "." + bl.dns
             answers = my_resolver.query(query, "A")
             answer_txt = my_resolver.query(query, "TXT")
-            data[bl] = 'IP: {} IS listed in {} ({}: {})'.format(ip.address, bl, answers[0], answer_txt[0])
+            data[bl.dns] = 'IP: {} IS listed in {} ({}: {})'.format(ip.address, bl, answers[0], answer_txt[0])
             blacklisted = False
             if bl.critical:
                 critical_blacklisted = False
         except Exception as e:
             continue
+
+    print(data)
     ip.blacklisted = blacklisted
     ip.critical_blacklisted = critical_blacklisted
     ip.data = data
@@ -34,7 +36,7 @@ def check_bl(ip):
 def check_ip_status(ip):
     cmd = shlex.split("ping -c1 {}".format(ip.address))
     try:
-       output = subprocess.check_output(cmd)
+        output = subprocess.check_output(cmd)
     except subprocess.CalledProcessError as e:
         ip.status = Types.STATUS_DOWN
     else:

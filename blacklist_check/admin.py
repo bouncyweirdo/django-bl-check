@@ -1,25 +1,10 @@
 from django.contrib import admin
-from django.contrib import messages
 from django.contrib.postgres.fields import JSONField
 from django import forms
 
 from .models import *
-from .utils import check_ip_status, check_bl
+from .tasks import check_ip_status, check_bl
 from .widgets import SplitJSONWidget
-
-
-def update_ip_status(modeladmin, request, queryset):
-    for ip in queryset:
-        check_ip_status(ip)
-    messages.info(request, 'Selected IPs were updated.')
-update_ip_status.short_description = "Update ip status"
-
-
-def update_ip_blacklist(modeladmin, request, queryset):
-    for ip in queryset:
-        check_bl(ip)
-    messages.info(request, 'Selected IPs were updated.')
-update_ip_blacklist.short_description = "Update ip blacklist"
 
 
 class IpAddressAdminForm(forms.ModelForm):
@@ -39,10 +24,22 @@ class IpAddressAdmin(admin.ModelAdmin):
     list_display = ("address", "hostname", "rdns", "status", "enabled", "blacklisted", "critical_blacklisted")
     search_fields = ["address", "hostname", "rdns"]
     list_filter = ("status", "enabled", "blacklisted", "critical_blacklisted")
-    actions = [update_ip_status, update_ip_blacklist]
+    actions = ['update_ip_status', 'update_ip_blacklist']
     formfield_overrides = {
         JSONField: {'widget': SplitJSONWidget},
     }
+
+    def update_ip_blacklist(self, request, queryset):
+        for ip in queryset:
+            check_bl(ip)
+        self.message_user(request, 'Selected IPs were updated.')
+    update_ip_blacklist.short_description = "Update ip blacklist"
+
+    def update_ip_status(self, request, queryset):
+        for ip in queryset:
+            check_ip_status(ip)
+        self.message_user(request, 'Blacklist update task has been placed, please allow it few minutes to update.')
+    update_ip_status.short_description = "Update ip status"
 
     def get_queryset(self, request):
         """Limit Pages to those that belong to the request's user."""
