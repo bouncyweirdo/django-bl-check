@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+from celery import Celery
 from celery.task import task
 
 import shlex
@@ -10,6 +11,7 @@ from .models import Types, DnsBlacklist
 from django.utils import timezone
 from dns import resolver
 
+celery = Celery('tasks', broker='amqp://guest@localhost//')
 
 @task()
 def check_bl(ip):
