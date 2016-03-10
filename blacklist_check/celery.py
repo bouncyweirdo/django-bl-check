@@ -3,7 +3,7 @@ from __future__ import absolute_import
 from celery import Celery
 
 # instantiate Celery object
-app = Celery(include=['blacklist_check.tasks'])
+app = Celery(include=['blacklist_check.tasks'], broker='redis://localhost:6379/0')
 
 # Optional configuration, see the application user guide.
 
