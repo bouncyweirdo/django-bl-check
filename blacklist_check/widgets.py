@@ -125,7 +125,7 @@ class SplitJSONWidget(forms.Widget):
             else:
                 return v
 
-        if raw_data:
+        try:
             for k, v in raw_data.iteritems():
                 if k in copy_raw_data:
                     # to transform value from list to string
@@ -139,6 +139,8 @@ class SplitJSONWidget(forms.Widget):
                             result.extend(d)
                         except:
                             result.update(d)
+        except:
+            pass
         return result
 
     def value_from_datadict(self, data, files, name):
