@@ -21,7 +21,7 @@ class DnsBlacklist(models.Model):
     critical = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.name or self.dns
+        return self.dns
 
 
 class IpAddress(models.Model):
