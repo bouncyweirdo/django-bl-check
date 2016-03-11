@@ -17,7 +17,6 @@ def check_bl(ip):
     blacklist_hosts = DnsBlacklist.objects.all()
     blacklisted = True
     critical_blacklisted = True
-    print(ip.address)
     for bl in blacklist_hosts:
         try:
             my_resolver = resolver.Resolver()
@@ -31,7 +30,6 @@ def check_bl(ip):
         except Exception as e:
             continue
 
-    print(data)
     ip.blacklisted = blacklisted
     ip.critical_blacklisted = critical_blacklisted
     ip.data = data
@@ -49,7 +47,6 @@ def check_ip_status(ip):
         ip.status = Types.STATUS_ACTIVE
 
     if ip.status == Types.STATUS_DOWN:
-        print(ip.address)
         client_socket = socket.socket()
         client_socket.settimeout(4)
         try:

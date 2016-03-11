@@ -14,7 +14,11 @@ class IpAddressAdminForm(forms.ModelForm):
 
     def clean_address(self):
         address = self.cleaned_data['address']
-        if IpAddress.objects.filter(address=address).exists():
+        if not self.instance.pk:
+            objects_list = IpAddress.objects.filter(address=address).exists()
+        else:
+            objects_list = IpAddress.objects.filter(address=address).exclude(id=self.instance.pk).exists()
+        if objects_list:
             raise forms.ValidationError("An entry with same ip already exists.")
         return address
 
@@ -68,7 +72,11 @@ class DnsBlacklistAdminForm(forms.ModelForm):
 
     def clean_dns(self):
         dns = self.cleaned_data['dns']
-        if DnsBlacklist.objects.filter(dns=dns).exists():
+        if not self.instance.pk:
+            objects_list = DnsBlacklist.objects.filter(dns=dns).exists()
+        else:
+            objects_list = DnsBlacklist.objects.filter(dns=dns).exclude(id=self.instance.pk).exists()
+        if objects_list:
             raise forms.ValidationError("An entry with same dns already exists.")
         return dns
 
