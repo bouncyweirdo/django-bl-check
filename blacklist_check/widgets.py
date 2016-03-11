@@ -140,7 +140,7 @@ class SplitJSONWidget(forms.Widget):
                         except:
                             result.update(d)
         except:
-            return None
+            return []
         return result
 
     def value_from_datadict(self, data, files, name):
