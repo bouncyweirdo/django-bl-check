@@ -14,12 +14,15 @@ class IpAddressAdminForm(forms.ModelForm):
 
     def clean_address(self):
         address = self.cleaned_data['address']
-        if not self.instance.pk:
-            objects_list = IpAddress.objects.filter(address=address).exists()
+        if self.instance.pk:
+            if self.instance.address == address:
+                return address
+            else:
+                if IpAddress.objects.filter(address=address).exists():
+                    raise forms.ValidationError("An entry with same ip address already exists.")
         else:
-            objects_list = IpAddress.objects.filter(address=address).exclude(id=self.instance.pk).exists()
-        if objects_list:
-            raise forms.ValidationError("An entry with same ip already exists.")
+            if IpAddress.objects.filter(address=address).exists():
+                raise forms.ValidationError("An entry with same ip address already exists.")
         return address
 
 
