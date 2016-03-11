@@ -8,7 +8,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django-bl-check',
-    version='0.1.9',
+    version='0.1.10',
     packages=[
         'blacklist_check',
         'blacklist_check.management',

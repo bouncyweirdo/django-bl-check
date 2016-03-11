@@ -75,7 +75,7 @@ class DnsBlacklistAdminForm(forms.ModelForm):
         if not self.instance.pk:
             objects_list = DnsBlacklist.objects.filter(dns=dns).exists()
         else:
-            objects_list = DnsBlacklist.objects.filter(dns=dns).exclude(id=self.instance.pk).exists()
+            objects_list = DnsBlacklist.objects.filter(dns=dns).exclude(pk=self.instance.pk).exists()
         if objects_list:
             raise forms.ValidationError("An entry with same dns already exists.")
         return dns
