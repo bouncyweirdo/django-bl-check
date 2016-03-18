@@ -8,6 +8,6 @@ class Command(BaseCommand):
     help = 'Check IP blacklist'
 
     def handle(self, *args, **options):
-        ips = IpAddress.objects.filter(enabled=True, status=Types.STATUS_ACTIVE)
-        for ip in ips:
+        ips = IpAddress.objects.filter(enabled=True, status=Types.STATUS_ACTIVE).values_list('address', flat=True)
+        for ip in list(ips):
             check_bl.delay(ip)

@@ -5,14 +5,16 @@ from celery.task import task
 import shlex
 import subprocess
 import socket
-
-from .models import Types, DnsBlacklist
-from django.utils import timezone
 from dns import resolver
+
+from django.utils import timezone
+from django.core.exceptions import ObjectDoesNotExist
+
+from .models import Types, DnsBlacklist, IpAddress
 
 
 @task()
-def check_bl(ip):
+def check_bl(address):
     data = dict()
     blacklist_hosts = DnsBlacklist.objects.all()
     blacklisted = True
@@ -20,48 +22,61 @@ def check_bl(ip):
     for bl in blacklist_hosts:
         try:
             my_resolver = resolver.Resolver()
-            query = '.'.join(reversed(str(ip.address).split("."))) + "." + bl.dns
+            query = '.'.join(reversed(str(address).split("."))) + "." + bl.dns
             answers = my_resolver.query(query, "A")
             answer_txt = my_resolver.query(query, "TXT")
-            data[bl.dns] = 'IP: {} IS listed in {} ({}: {})'.format(ip.address, bl, answers[0], answer_txt[0])
+            data[bl.dns] = 'IP: {} IS listed in {} ({}: {})'.format(address, bl, answers[0], answer_txt[0])
             blacklisted = False
             if bl.critical:
                 critical_blacklisted = False
-        except Exception as e:
+        except:
             continue
 
-    ip.blacklisted = blacklisted
-    ip.critical_blacklisted = critical_blacklisted
-    ip.data = data
-    ip.save()
+    try:
+        address = IpAddress.objects.get(address=address)
+    except ObjectDoesNotExist:
+        return False
+
+    address.blacklisted = blacklisted
+    address.critical_blacklisted = critical_blacklisted
+    address.data = data
+    address.save()
 
 
 @task()
-def check_ip_status(ip):
-    cmd = shlex.split("ping -c1 {}".format(ip.address))
+def check_ip_status(address):
+    rdns = None
+    cmd = shlex.split("ping -c1 {}".format(address['address']))
     try:
         output = subprocess.check_output(cmd)
-    except subprocess.CalledProcessError as e:
-        ip.status = Types.STATUS_DOWN
+    except subprocess.CalledProcessError:
+        status = Types.STATUS_DOWN
     else:
-        ip.status = Types.STATUS_ACTIVE
+        status = Types.STATUS_ACTIVE
 
-    if ip.status == Types.STATUS_DOWN:
+    if status == Types.STATUS_DOWN:
         client_socket = socket.socket()
         client_socket.settimeout(4)
         try:
-            client_socket.connect((ip.address, ip.ssh_port))
+            client_socket.connect((address['address'], address['ssh_port']))
         except socket.error:
-            ip.status = Types.STATUS_DOWN
+            status = Types.STATUS_DOWN
         else:
-            ip.status = Types.STATUS_ACTIVE
+            status = Types.STATUS_ACTIVE
         client_socket.close()
 
-    if ip.status == Types.STATUS_ACTIVE:
+    if status == Types.STATUS_ACTIVE:
         try:
-            ip.rdns = socket.gethostbyaddr(ip.address)[0]
-        except Exception as e:
+            rdns = socket.gethostbyaddr(address['address'])[0]
+        except:
             pass
 
-    ip.last_update = timezone.now()
-    ip.save()
+    try:
+        address = IpAddress.objects.get(address=address['address'])
+    except ObjectDoesNotExist:
+        return False
+
+    address.status = status
+    address.rdns = rdns
+    address.last_update = timezone.now()
+    address.save()
