@@ -33,14 +33,14 @@ def check_bl(address):
             continue
 
     try:
-        address = IpAddress.objects.get(address=address)
+        ip = IpAddress.objects.get(address=address)
     except ObjectDoesNotExist:
         return False
 
-    address.blacklisted = blacklisted
-    address.critical_blacklisted = critical_blacklisted
-    address.data = data
-    address.save()
+    ip.blacklisted = blacklisted
+    ip.critical_blacklisted = critical_blacklisted
+    ip.data = data
+    ip.save()
 
 
 @task()
@@ -72,11 +72,11 @@ def check_ip_status(address):
             pass
 
     try:
-        address = IpAddress.objects.get(address=address['address'])
+        ip = IpAddress.objects.get(address=address['address'])
     except ObjectDoesNotExist:
         return False
 
-    address.status = status
-    address.rdns = rdns
-    address.last_update = timezone.now()
-    address.save()
+    ip.status = status
+    ip.rdns = rdns
+    ip.last_update = timezone.now()
+    ip.save()

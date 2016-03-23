@@ -40,13 +40,13 @@ class IpAddressAdmin(admin.ModelAdmin):
         for ip in queryset:
             check_bl.delay(ip)
         self.message_user(request, 'Blacklist update task has been placed, please allow it few minutes to update.')
-    update_ip_blacklist.short_description = "Update ip status"
+    update_ip_blacklist.short_description = "Update ip blacklist"
 
     def update_ip_status(self, request, queryset):
         for ip in queryset:
             check_ip_status.delay(ip)
         self.message_user(request, 'Selected IPs were updated.')
-    update_ip_status.short_description = "Update ip blacklist"
+    update_ip_status.short_description = "Update ip status"
 
     def get_queryset(self, request):
         """Limit Pages to those that belong to the request's user."""
