@@ -25,6 +25,7 @@ class DnsBlacklist(models.Model):
 
 
 class IpAddress(models.Model):
+    created = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User)
     address = models.GenericIPAddressField(help_text="Ip address that you want to check.")
     hostname = models.CharField(max_length=500, default=None, blank=True, null=True, help_text="Server hostname where IP is used, for info purposes.")
@@ -42,3 +43,6 @@ class IpAddress(models.Model):
 
     def reversed_ip(self):
         return '.'.join(self.address.split('.')[::-1])
+
+    class Meta:
+        ordering = ['-created']
